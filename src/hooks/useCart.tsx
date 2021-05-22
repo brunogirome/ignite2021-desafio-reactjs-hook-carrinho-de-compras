@@ -34,9 +34,9 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const addProduct = async (productId: number) => {
     try {
-      const { amount: stockAmount }: Stock = await api.get(
-        `/stock/${productId}`,
-      );
+      const response = await api.get(`/stock/${productId}`);
+
+      const { amount: stockAmount }: Stock = response.data;
 
       if (stockAmount < 1) {
         toast.error('Não há estoque disponível para este produto.');
@@ -57,17 +57,24 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
         updatedCart.forEach(product => {
           if (product.id === productId) {
-            product.amount += 1;
+            product.amount = product.amount + 1;
           }
         });
 
         setCart(updatedCart);
+        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
         return;
       }
 
       const { data: product } = await api.get(`/products/${productId}`);
 
+      product.amount = 1;
+
       setCart([...cart, product]);
+      localStorage.setItem(
+        '@RocketShoes:cart',
+        JSON.stringify([...cart, product]),
+      );
     } catch {
       toast.error('Erro na adição do produto.');
     }
