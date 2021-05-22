@@ -48,7 +48,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       );
 
       if (isProductInCart && isProductInCart.amount >= stockAmount) {
-        toast.error('Quantidade solicitada fora de estoque.');
+        toast.error('Quantidade solicitada fora de estoque');
         return;
       }
 
@@ -76,7 +76,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         JSON.stringify([...cart, product]),
       );
     } catch {
-      toast.error('Erro na adição do produto.');
+      toast.error('Erro na adição do produto');
     }
   };
 
@@ -95,7 +95,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
       setCart(updatedCart);
     } catch {
-      toast.error('Erro na remoção do produto.');
+      toast.error('Erro na remoção do produto');
     }
   };
 
@@ -104,9 +104,38 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     amount,
   }: UpdateProductAmount) => {
     try {
-      // TODO
+      const isProductInCart: Product | undefined = cart.find(
+        product => product.id === productId,
+      );
+
+      if (!isProductInCart) {
+        throw new Error('The product is not in the cart.');
+      }
+
+      const response = await api.get(`/stock/${productId}`);
+      const { amount: stockAmount }: Stock = response.data;
+
+      if (amount > stockAmount) {
+        toast.error('Quantidade solicitada fora de estoque');
+        return;
+      }
+
+      if (amount <= 0) {
+        removeProduct(productId);
+        return;
+      }
+
+      const updatedCart = cart;
+      updatedCart.forEach(product => {
+        if (product.id === productId) {
+          product.amount = amount;
+        }
+      });
+
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
+      setCart(updatedCart);
     } catch {
-      // TODO
+      toast.error('Erro na alteração de quantidade do produto');
     }
   };
 
