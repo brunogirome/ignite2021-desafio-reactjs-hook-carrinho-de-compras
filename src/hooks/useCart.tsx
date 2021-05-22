@@ -90,7 +90,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         throw new Error('This product does not exist.');
       }
 
-      const updatedCart = cart.filter(product => product.id === productId);
+      let updatedCart = [...cart].filter(product => product.id !== productId);
 
       localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
       setCart(updatedCart);
@@ -125,7 +125,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         return;
       }
 
-      const updatedCart = cart;
+      const updatedCart = [...cart];
       updatedCart.forEach(product => {
         if (product.id === productId) {
           product.amount = amount;
