@@ -104,12 +104,16 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     amount,
   }: UpdateProductAmount) => {
     try {
+      if (amount <= 0) {
+        return;
+      }
+
       const isProductInCart: Product | undefined = cart.find(
         product => product.id === productId,
       );
 
       if (!isProductInCart) {
-        throw new Error('The product is not in the cart.');
+        throw new Error('The product is not in the cart');
       }
 
       const response = await api.get(`/stock/${productId}`);
